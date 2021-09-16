@@ -113,16 +113,17 @@ public class ReceptionController {
 	}
 
 	@SuppressWarnings("deprecation")
-	@PutMapping("/{price}/{username}/{email}/{dateIn}")
-	ResponseEntity<Boolean> addMoneyForCancellation(@PathVariable("price") int price,
+	@PutMapping("/{username}/{dateIn}")
+	ResponseEntity<Boolean> addMoneyForCancellation(
 			@PathVariable("username") String username,
-			@PathVariable("dateIn") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateIn, @PathVariable String email,
-			Booking bookingTable) throws ParseException {
+			@PathVariable("dateIn") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateIn
+			) throws ParseException {
 		ResponseEntity<Boolean> responseEntity = null;
 
+		Booking booking = bookingService.findByUserName(username);
 		String message = null;
 		String from = "naveedimran2802@gmail.com";
-		String to = email;
+		String to = booking.getEmail();
 		String subject = "Regarding the cancellation request";
 		Date currentDate = new Date();
 
@@ -130,7 +131,7 @@ public class ReceptionController {
 		System.out.println(monthDifference);
 
 		int dateDifference = dateIn.getDate() - currentDate.getDate();
-
+		int price = booking.getAmountPaid();
 		System.out.println(dateDifference);
 		if (monthDifference != 0) {
 			dateDifference += 31;
@@ -214,25 +215,66 @@ public class ReceptionController {
 
 	}
 
-	@PutMapping("/{status}/{username}/{price}")
-	ResponseEntity<Boolean> deductMoneyFromCheckOut(@PathVariable("price") int price,
-			@PathVariable("username") String username, @PathVariable("status") String status) {
+	@PutMapping("payment/{username}")
+	ResponseEntity<Boolean> deductMoneyFromCheckOut(
+			@PathVariable("username") String username) {
 
-		System.out.println(status);
+		Booking booking = bookingService.findByUserName(username);
+		String status = booking.getBookingStatus();
+		int price = booking.getAmountPaid();
 		ResponseEntity<Boolean> responseEntity = null;
 		if (status.compareToIgnoreCase("booked") == 0) {
-			System.out.println(price);
+		
 			price = (price / 100) * 10;
-			walletService.deductMoney(username, price);
+			boolean result = walletService.deductMoney(username, price);
+			if(result) {
+				String from = "naveedimran2802@gmail.com";
+				String to = booking.getEmail();
+				String subject = "Thank you booking with us";
+				String message = "Dear " + username + "," + "\n"
+						+ "\n Thank you for making an booking with us your booking has been processed"
+						+ "Your payment during the booking of you hotel room has been reducted successfully from your respective wallet."
+						+ "\n\nThank you for thinking about us for your hotel needs" + "\n \nPlease query us at "
+						+ "menando@gmail.com, we would love to hear from you" + "\n \n" + "Regards"
+						+ "\n Menando resort";
+				walletService.sendMail(from, to, subject, message);
+				responseEntity = new ResponseEntity<Boolean>(result, HttpStatus.OK);
+			}
 			responseEntity = new ResponseEntity<Boolean>(true, HttpStatus.OK);
-		} else if (status.compareToIgnoreCase("IN") == 0) {
+			}
+		else if (status.compareToIgnoreCase("IN") == 0) {
 			price = (price / 100) * 40;
-			walletService.deductMoney(username, price);
-			responseEntity = new ResponseEntity<Boolean>(true, HttpStatus.OK);
+			boolean result = walletService.deductMoney(username, price);
+			if(result) {
+				String from = "naveedimran2802@gmail.com";
+				String to = booking.getEmail();
+				String subject = "Thank you booking with us";
+				String message = "Dear " + username + "," + "\n"
+						+ "\n Thank you for Checking in with your booking, your booking status has been processed"
+						+ "Your payment during the checkin of the hotel room has been reducted successfully from your respective wallet."
+						+ "\n\nThank you for thinking about us for your hotel needs" + "\n \nPlease query us at "
+						+ "menando@gmail.com, we would love to hear from you" + "\n \n" + "Regards"
+						+ "\n Menando resort";
+				walletService.sendMail(from, to, subject, message);
+				responseEntity = new ResponseEntity<Boolean>(result, HttpStatus.OK);
+			}
 		} else if (status.compareToIgnoreCase("OUT") == 0) {
 			price = (price / 100) * 50;
-			walletService.deductMoney(username, price);
-			responseEntity = new ResponseEntity<Boolean>(true, HttpStatus.OK);
+			boolean result = walletService.deductMoney(username, price);
+			if(result) {
+				String from = "naveedimran2802@gmail.com";
+				String to = booking.getEmail();
+				String subject = "Thank you booking with us";
+				String message = "Dear " + username + "," + "\n"
+						+ "\n Thank you for Checking out with your booking, your booking status has been processed"
+						+ "Your payment during the checkout of the hotel room has been reducted successfully from your respective wallet."
+						+ "\n\nThank you for thinking about us for your hotel needs" + "\n \nPlease query us at "
+						+ "menando@gmail.com, we would love to hear from you" + "\n \n" + "Regards"
+						+ "\n Menando resort";
+				walletService.sendMail(from, to, subject, message);
+				responseEntity = new ResponseEntity<Boolean>(result, HttpStatus.OK);
+			}
+			
 		} else {
 			responseEntity = new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
 		}

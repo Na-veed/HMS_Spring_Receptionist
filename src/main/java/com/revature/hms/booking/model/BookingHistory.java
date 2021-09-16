@@ -1,6 +1,5 @@
 package com.revature.hms.booking.model;
 
-
 import java.util.Calendar;
 
 import javax.persistence.Basic;
@@ -11,13 +10,19 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name ="bookings")	
+@Table(name="bookinghistory")
 @Data
-public class Booking {
-	
+@AllArgsConstructor
+@NoArgsConstructor
+public class BookingHistory {
+
 	@Id
 	private String userName;
 	
@@ -62,4 +67,3 @@ public class Booking {
 	private int amountPaid;			
 	
 }
-

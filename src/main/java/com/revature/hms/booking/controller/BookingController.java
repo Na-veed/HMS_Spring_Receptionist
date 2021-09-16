@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.revature.hms.HotelManagementReceptionistApplication;
 import com.revature.hms.booking.model.Booking;
+import com.revature.hms.booking.service.BookingHistoryService;
 import com.revature.hms.booking.service.BookingService;
 import com.revature.hms.booking.service.BookingServiceImpl;
 
@@ -35,6 +36,8 @@ public class BookingController {
 	
 	@Autowired
 	BookingService bookingService;
+	
+	
 	
 	@GetMapping
 	public ResponseEntity<List<Booking>> getBookings()
@@ -76,10 +79,12 @@ public class BookingController {
 	}
 	
 	
-	@PutMapping()
+	@PutMapping
 	public ResponseEntity<String> updateBookingRecord(@RequestBody Booking booking)
 	{
 		ResponseEntity<String> responseEntity = null;
+		 String from = "Taj-Restaurant";
+		 String subject="Room Booking Status";
 		int bookingRoom = booking.getRoomNumber();
 		String message=null;
 		LOGGER.info("******************** ROOM NUMBER IS ALLOCATED TO CUSTOMER ");
@@ -96,46 +101,21 @@ public class BookingController {
 			LOGGER.info("******************** ROOM IS EMPTY, ALLOCATE ROOM ");
 			
 			result = bookingService.updateRecord(booking);
-			message = "Room : "+bookingRoom+" allocated";
-			/*
-			 * if(result) { int roomNumber = booking.getRoomNumber(); String from =
-			 * "Taj-Restaurant"; String toUserMail = booking.getEmail(); String
-			 * subject="Room Booking Status"; String message1=null;
-			 * 
-			 * message1="Congrajulations! and Hearty Welcome "+
-			 * "\n Dear "+booking.getUserName()+"\n"
-			 * +"You have successfully Booked a room in our Hotel with Room no : "
-			 * +booking.getRoomNumber()+
-			 * "With an initial Amount of INR: "+booking.getAmountPayed();
-			 * mailApplication.sendMail(from, toUserMail,subject , message1);
-			 * LOGGER.info("Mail Sent Successfully..."); }
-			 */
+			String username = booking.getUserName();
+			booking = bookingService.findByUserName(username);
+			String toUserMail = booking.getEmail();
+			message = "Congratulations! and Hearty Welcome "+ 
+					 "\n Dear "+booking.getUserName()+"\n"
+					 +"You have successfully Booked a room in our Hotel with Room no : "
+					 +booking.getRoomNumber()+
+					 "With an initial Amount of INR: "+booking.getAmountPaid();
+			 mailApplication.sendMail(from, toUserMail,subject , message);
+			 LOGGER.info("Mail Sent Successfully...");
 			responseEntity = new ResponseEntity<String>(message,HttpStatus.OK);
 	}
 		return responseEntity;
 	}
 	
-	@PostMapping()
-	public ResponseEntity<String> mailAcknowledgement(@RequestBody Booking booking)
-	{
-		ResponseEntity<String> responseEntity = null;
-		 int roomNumber = booking.getRoomNumber();
-		 String from = "Taj-Restaurant";
-		 String toUserMail = booking.getEmail();
-		 String subject="Room Booking Status";
-		 String message=null;
-	 if(result)
-	 {
-		 message="Congratulations! and Hearty Welcome "+ 
-				 "\n Dear "+booking.getUserName()+"\n"
-				 +"You have successfully Booked a room in our Hotel with Room no : "
-				 +roomNumber+
-				 "With an initial Amount of INR: "+booking.getAmountPayed();
-		 mailApplication.sendMail(from, toUserMail,subject , message);
-	 }
-	  LOGGER.info("Mail Sent Successfully...");
-		return responseEntity;
-		
-	}
+	
 	
 }

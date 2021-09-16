@@ -14,6 +14,11 @@ public class HotelManagementReceptionistApplication {
 	@Autowired
 	private static JavaMailSender mailSender;
 
+	@Autowired
+	public  HotelManagementReceptionistApplication(JavaMailSender s) {
+		this.mailSender = s;
+	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(HotelManagementReceptionistApplication.class, args);
 	}

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,13 +19,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.revature.hms.booking.model.Booking;
+import com.revature.hms.booking.model.Receptionist;
 import com.revature.hms.booking.model.Wallet;
+import com.revature.hms.booking.service.BookingHistoryService;
 import com.revature.hms.booking.service.BookingService;
 import com.revature.hms.booking.service.BookingServiceImpl;
+import com.revature.hms.booking.service.ReceptionistService;
 import com.revature.hms.booking.service.WalletService;
+
 
 @RestController
 @RequestMapping("/Reception")
+@CrossOrigin(origins="http://localhost/4200")
 public class ReceptionController {
 
 	Logger LOGGER = LoggerFactory.getLogger(BookingServiceImpl.class);
@@ -33,6 +40,67 @@ public class ReceptionController {
 
 	@Autowired
 	BookingService bookingService;
+	
+	@Autowired
+	private BookingHistoryService bookingHistoryService;
+	
+	@Autowired
+	private ReceptionistService receptionistService;
+	
+	
+	@PutMapping("{receptionistId}")
+	public ResponseEntity<String> updateMyProfile(@RequestBody Receptionist receptionist){
+	   ResponseEntity<String> responseEntity = null;
+	   int receptionistId= receptionist.getReceptionistId();
+	   String message= null;
+	   if(receptionistService.isReceptionistExists(receptionistId)) {
+		   receptionistService.updateReceptionist(receptionist); 
+		   //Receptionist receptionist1 = receptionistService.viewDetails(receptionistId);
+		   message="Receptionist with ReceptionistId " +receptionistId + " details has been Updated Successfully ";
+		   responseEntity = new ResponseEntity<String>(message, HttpStatus.OK);
+	   }
+	   else {
+		   message="Receptionist with ReceptionistId" +receptionistId+ "does not exist";
+		   responseEntity = new ResponseEntity<String>(message, HttpStatus.OK);
+	   }
+	   return responseEntity;
+	}
+	
+	@GetMapping("/searchByReceptionistIdAndReceptionistPassword/{receptionistId}/{receptionistPassword}")
+	public ResponseEntity<Receptionist> receptionistLogin(@PathVariable("receptionistId") int receptionistId, @PathVariable("receptionistPassword") String receptionistPassword){
+		
+			 ResponseEntity<Receptionist> responseEntity=null;
+			 Receptionist receptionist = null;
+			 boolean res=false;		
+			 res=receptionistService.receptionistLogin(receptionistId, receptionistPassword);
+			 if(res) {
+		    // receptionist= receptionistService.viewDetails(receptionistId);
+			 responseEntity=new ResponseEntity<Receptionist> (receptionist,HttpStatus.OK);
+			 System.out.println("logged successfully");
+			 } 
+			 else {
+			 responseEntity=new ResponseEntity<Receptionist> (receptionist,HttpStatus.CONFLICT);
+			 System.out.println("Your login details are not matched");
+			 }
+			
+			 return responseEntity;
+			  	
+		}
+	
+	@GetMapping("/searchByReceptionistId/{receptionistId}")
+	public ResponseEntity<Receptionist> getReceptionistById(@PathVariable("receptionistId") int receptionistId){
+		ResponseEntity<Receptionist> responseEntity = null;
+		Receptionist receptionist = new Receptionist();
+		if(receptionistService.isReceptionistExists(receptionistId)) {
+			 receptionist= receptionistService.viewDetails(receptionistId);
+			 responseEntity = new ResponseEntity<Receptionist>(receptionist, HttpStatus.OK);
+		}
+		else {
+			responseEntity = new ResponseEntity<Receptionist>(receptionist, HttpStatus.OK);
+
+		}
+		return responseEntity;
+	}
 
 	@PostMapping("/save")
 	public ResponseEntity<String> addWallet(@RequestBody Wallet wallet) {
@@ -75,16 +143,15 @@ public class ReceptionController {
 					LOGGER.info("******************** DELETED CANCELLED ROOM RECORD FROM DATABASE");
 
 					// need to update the record into booking history then delete record in db.
-
+					bookingHistoryService.addToHistory(username);
 					bookingService.deleteRecord(username);
 
-					message = "Dear " + username + "," + "\n"
-							+ "\n Your cancellation request has been succesfully processed and your booking "
-							+ "has been cancelled successfully"
-							+ "Your payment during the booking of you hotel room has been refunded successfully to your "
-							+ "respective wallet." + "\n \nThank you for thinking about us for your hotel needs"
-							+ "\n \nPlease query us at " + "menando@gmail.com, we would love to hear from you" + "\n \n"
-							+ "Regards" + "\n Menando resort";
+					message = "Dear " + username + "," + 
+							 "\n Your cancellation request has been succesfully processed and your booking has been cancelled successfully"+
+							"\nYour payment during the booking of your hotel room has been refunded successfully to yourrespective wallet." +
+							  "\nThank you for thinking about us for your hotel needs"+
+							"\nPlease query us at menando@gmail.com, we would love to hear from you" + 
+							 "\n Regards" + "\n Menando resort";
 					walletService.sendMail(from, to, subject, message);
 					responseEntity = new ResponseEntity<Boolean>(result, HttpStatus.OK);
 				} else {
@@ -102,15 +169,13 @@ public class ReceptionController {
 				LOGGER.info("******************** DELETED CANCELLED ROOM RECORD FROM DATABASE");
 
 				// need to update the record into booking history then delete record in db.
-
+				bookingHistoryService.addToHistory(username);
 				bookingService.deleteRecord(username);
 				message = "Dear " + username + "," + "\n"
 						+ "\n Your cancellation request has been succesfully processed and your booking "
-						+ "has been cancelled successfully"
-						+ "Your payment during the booking of you hotel room has not been refunded due to the "
-						+ "hotel policies."
-
-						+ "\n \nPlease query us at " + "menando@gmail.com, we would love to hear from you" + "\n \n"
+						+ "\n has been cancelled successfully"
+						+ "\nYour payment during the booking of you hotel room has not been refunded due to the hotel policies."
+						+ "\n\nPlease query us at " + "menando@gmail.com, we would love to hear from you" + "\n \n"
 						+ "Regards" + "\n Menando resort";
 				walletService.sendMail(from, to, subject, message);
 				responseEntity = new ResponseEntity<Boolean>(result, HttpStatus.OK);
@@ -129,15 +194,13 @@ public class ReceptionController {
 				LOGGER.info("******************** DELETED CANCELLED ROOM RECORD FROM DATABASE");
 
 				// need to update the record into booking history then delete record in db.
-
+				bookingHistoryService.addToHistory(username);	
 				bookingService.deleteRecord(username);
 				message = "Dear " + username + "," + "\n"
-						+ "\n Your cancellation request has been succesfully processed and your booking "
-						+ "has been cancelled successfully"
-						+ "Your payment during the booking of you hotel room has been refunded successfully to your "
-						+ "respective wallet."
+						+ "\n Your cancellation request has been succesfully processed and your booking has been cancelled successfully"
+						+ "Your payment during the booking of you hotel room has been refunded successfully to your respective wallet."
 						+ "\n Due to policies and conditions only 5% of your payed amount has been refunded to your wallet"
-						+ "\n \nThank you for thinking about us for your hotel needs" + "\n \nPlease query us at "
+						+ "\n\nThank you for thinking about us for your hotel needs" + "\n \nPlease query us at "
 						+ "menando@gmail.com, we would love to hear from you" + "\n \n" + "Regards"
 						+ "\n Menando resort";
 				walletService.sendMail(from, to, subject, message);

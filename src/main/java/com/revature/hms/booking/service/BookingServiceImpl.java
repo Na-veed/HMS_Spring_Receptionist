@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.revature.hms.booking.model.Booking;
 import com.revature.hms.booking.repository.BookingRepository;
+
 @Service
 public class BookingServiceImpl implements BookingService {
 
@@ -59,10 +60,19 @@ public class BookingServiceImpl implements BookingService {
 		LOGGER.info("--------------------- ROOMS OF BOOKED RECORDS METHOD CALLED");
 		return bookingRepository.findByRoomNumberGreaterThan(roomNumber);
 	}
-	/*
-	 * @Override public List<Booking> emailBookingAcknowledge(String email) {
-	 * 
-	 * return bookingRepository.findByBookingEmail(email); }
-	 * 
-	 */
+
+
+	@Override
+	public boolean deleteByUserName(String userName) {
+		LOGGER.info("--------------------- DELETE BY USERNAME METHOD CALLED");
+		bookingRepository.deleteByUserName(userName);
+		return true;
+	}
+
+	@Override
+	public Booking findByUserName(String userName) {
+		LOGGER.info("--------------------- FIND BY USERNAME METHOD CALLED");
+	    Booking booking=bookingRepository.findByUserName(userName);
+		return booking;
+	}
 }

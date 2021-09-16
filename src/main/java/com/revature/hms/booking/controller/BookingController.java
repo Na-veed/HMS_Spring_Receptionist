@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -130,7 +129,7 @@ public class BookingController {
 		 message="Congratulations! and Hearty Welcome "+ 
 				 "\n Dear "+booking.getUserName()+"\n"
 				 +"You have successfully Booked a room in our Hotel with Room no : "
-				 +booking.getRoomNumber()+
+				 +roomNumber+
 				 "With an initial Amount of INR: "+booking.getAmountPayed();
 		 mailApplication.sendMail(from, toUserMail,subject , message);
 	 }
@@ -138,18 +137,5 @@ public class BookingController {
 		return responseEntity;
 		
 	}
-	
-	@DeleteMapping("{userName}")
-	public ResponseEntity<String> deleteCancelledRecord(@PathVariable("userName")String userName)
-	{
-		LOGGER.info("******************** DELETED CANCELLED ROOM RECORD FROM DATABASE");
-		ResponseEntity<String> responseEntity = null;
-						//need to update the record into booking history then delete record in db. 
-		bookingService.deleteRecord(userName);
-		String message ="User : "+userName+ " Record deleted ";
-		responseEntity = new ResponseEntity<String>(message,HttpStatus.OK);
-		return responseEntity;
-	}
-	
 	
 }

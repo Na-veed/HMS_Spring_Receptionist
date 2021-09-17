@@ -132,7 +132,7 @@ public class ReceptionController {
 		System.out.println(monthDifference);
 
 		int dateDifference = dateIn.getDate() - currentDate.getDate();
-		int price = booking.getAmountPaid();
+		int price = booking.getRoomPrice();
 		System.out.println(dateDifference);
 		if (monthDifference != 0) {
 			dateDifference += 31;
@@ -240,7 +240,7 @@ public class ReceptionController {
 
 		Booking booking = bookingService.findByUserName(username);
 		String status = booking.getBookingStatus();
-		int price = booking.getAmountPaid();
+		int price = booking.getRoomPrice();
 		ResponseEntity<Boolean> responseEntity = null;
 		if (status.compareToIgnoreCase("booked") == 0) {
 		

@@ -37,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public boolean deleteRecord(String userName) {
 		LOGGER.info("--------------------- RECORD DELETED METHOD CALLED  ");
-		bookingRepository.deleteById(userName);
+		bookingRepository.deleteByCustomerUserName(userName);
 		return true;
 	}
 
@@ -65,14 +65,14 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public boolean deleteByUserName(String userName) {
 		LOGGER.info("--------------------- DELETE BY USERNAME METHOD CALLED");
-		bookingRepository.deleteByUserName(userName);
+		bookingRepository.deleteByCustomerUserName(userName);
 		return true;
 	}
 
 	@Override
 	public Booking findByUserName(String userName) {
 		LOGGER.info("--------------------- FIND BY USERNAME METHOD CALLED");
-	    Booking booking=bookingRepository.findByUserName(userName);
+	    Booking booking=bookingRepository.findByCustomerUserName(userName);
 		return booking;
 	}
 }

@@ -14,4 +14,6 @@ public interface WalletService {
 
 	boolean deductMoney(String username, int money);
 	
+	public Wallet getCustomerBalance(String customerUserName);
+	
 }

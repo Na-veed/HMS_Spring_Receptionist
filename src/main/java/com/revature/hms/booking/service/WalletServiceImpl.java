@@ -66,4 +66,11 @@ public class WalletServiceImpl implements WalletService {
 		mailSender.send(mail);	
 	}
 
+	@Override
+	public Wallet getCustomerBalance(String customerUserName) {
+		Wallet wallet= walletRepository.findByCustomerUserName(customerUserName);
+		
+		return wallet;
+	}
+
 }

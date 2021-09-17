@@ -21,7 +21,7 @@ public class Wallet implements Serializable{/**
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	private String username;
+	private String customerUserName;
 	
 	private int money;
 

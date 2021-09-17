@@ -34,7 +34,7 @@ import com.revature.hms.booking.service.WalletService;
 public class ReceptionController {
 
 	Logger LOGGER = LoggerFactory.getLogger(BookingServiceImpl.class);
-
+	
 	@Autowired
 	WalletService walletService;
 
@@ -214,6 +214,24 @@ public class ReceptionController {
 		return responseEntity;
 
 	}
+	
+	@PutMapping("/updateWallet/{customerUserName}/{walletAmount}")
+	public ResponseEntity<String> updateMoneyToWallet(@PathVariable String customerUserName,
+			@PathVariable int walletAmount) {// Working
+		ResponseEntity<String> responseEntity = null;
+
+		String message = null;
+		if (walletService.addMoneyForCancellation(customerUserName, walletAmount)) {
+			message = "Amount Updated Successfully";
+			responseEntity = new ResponseEntity<String>(message, HttpStatus.OK);
+		} else {
+
+			message = "Something Went Wromg";
+			responseEntity = new ResponseEntity<String>(message, HttpStatus.NOT_FOUND);
+
+		}
+		return responseEntity;
+	}
 
 	@PutMapping("payment/{username}")
 	ResponseEntity<Boolean> deductMoneyFromCheckOut(
@@ -279,6 +297,29 @@ public class ReceptionController {
 			responseEntity = new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
 		}
 
+		return responseEntity;
+	}
+	
+	@SuppressWarnings("unused")
+	@GetMapping("/{customerUserName}/getBalance")
+	public ResponseEntity<Integer> getCustomerBalance(@PathVariable String customerUserName) {
+		ResponseEntity<Integer> responseEntity = null;
+		
+		
+		Wallet wallet=walletService.getCustomerBalance(customerUserName);
+		int amount=wallet.getMoney();
+		if(wallet!=null) {
+			
+			 amount=wallet.getMoney();
+			
+			responseEntity = new ResponseEntity<Integer>(amount, HttpStatus.OK);
+		} 
+		else {
+
+			amount = 0;
+			responseEntity = new ResponseEntity<Integer>(amount, HttpStatus.NOT_FOUND);
+
+		}
 		return responseEntity;
 	}
 

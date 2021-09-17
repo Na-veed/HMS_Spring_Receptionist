@@ -30,7 +30,7 @@ import com.revature.hms.booking.service.WalletService;
 
 @RestController
 @RequestMapping("/Reception")
-@CrossOrigin(origins="http://localhost/4200")
+@CrossOrigin(origins="http://localhost:4200")
 public class ReceptionController {
 
 	Logger LOGGER = LoggerFactory.getLogger(BookingServiceImpl.class);
@@ -120,6 +120,7 @@ public class ReceptionController {
 			) throws ParseException {
 		ResponseEntity<Boolean> responseEntity = null;
 
+		System.out.println("cancel called");
 		Booking booking = bookingService.findByUserName(username);
 		String message = null;
 		String from = "naveedimran2802@gmail.com";
